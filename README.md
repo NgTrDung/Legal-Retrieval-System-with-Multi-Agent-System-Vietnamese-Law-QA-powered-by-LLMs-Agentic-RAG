@@ -53,8 +53,9 @@ The core issues addressed include:
 * **Document Source**: Official Vietnamese legal websites.
 * **Vector DB**: Qdrant, used to store and retrieve dense document embeddings.
 * **LLM Backbone**: Google BERT fine-tuned for Vietnamese law.
-* **Embedding Model**: Custom Sentence Transformers (`quanghuy123/LEGAL_EMBEDDING`).
-* **Reranker**: Cross-Encoder with Reciprocal Rank Fusion (RRF) strategy (`hghaan/rerank_model`).
+* **Embedding Model**: Custom Sentence Transformers ([huyydangg/DEk21_hcmute_embedding](https://huggingface.co/huyydangg/DEk21_hcmute_embedding)).
+* **Reranker**: Cross-Encoder with Reciprocal Rank Fusion (RRF) strategy ([hghaan/rerank_model](https://huggingface.co/hghaan/rerank_model)).
+* **Extractor Model**: BERT to extract legal answer spans ([huyydangg/bert_extract_full_fine-tuned](https://huggingface.co/huyydangg/bert_extract_full_fine-tuned)).
 * **RAG Architecture**: Agentic RAG integrating:
 
   * `Query Router`
