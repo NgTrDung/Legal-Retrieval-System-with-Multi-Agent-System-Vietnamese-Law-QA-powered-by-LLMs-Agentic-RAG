@@ -1,166 +1,154 @@
-![AGENTIC_RAG1-Detail_Workflow drawio](https://github.com/user-attachments/assets/92ad2bf4-9ce9-4cd0-87d6-6a3d3933f479)
-
-Here is the Demo video: [Legal Retrieval System with Multi Agent System: Vietnamese Law QA powered by LLMs & Agentic RAG](https://youtu.be/v9iN9ebrfx8?si=0QFnMgT6_434TMRK)
-
 # 📄 **Technical Report**
 
-## Legal Retrieval System with Multi Agent System: Vietnamese Law QA powered by LLMs & Agentic RAG
+## Legal Retrieval System with Multi-Agent Architecture: Vietnamese Law QA powered by LLMs & Agentic RAG
 
-**Author**: We would like to express our sincere gratitude to the team members who contributed their efforts and expertise to this project:
+**Authors**:  
+We gratefully acknowledge the invaluable contributions of the following team members:
 
-  1. Đặng Nguyễn Quang Huy - [ZeusCoderBE](https://github.com/ZeusCoderBE)
-  2. Huỳnh Gia Hân - [hg27haan](https://github.com/hg27haan)
-  3. Nguyễn Trọng Dũng - [NgTrDung](https://github.com/NgTrDung)
+1. Đặng Nguyễn Quang Huy – [ZeusCoderBE](https://github.com/ZeusCoderBE)  
+2. Huỳnh Gia Hân – [hg27haan](https://github.com/hg27haan)  
+3. Nguyễn Trọng Dũng – [NgTrDung](https://github.com/NgTrDung)
 
-**Supervised by**: ThS. Trần Trọng Bình
-
-**Institution**: Ho Chi Minh City University of Technology and Education
-
-**Department**:  Faculty of Information Technology
-
+**Supervisor**: ThS. Trần Trọng Bình  
+**Institution**: Ho Chi Minh City University of Technology and Education  
+**Department**: Faculty of Information Technology  
 **Major**: Data Engineering
 
 ---
 
 ## 1. Executive Summary
 
-This report presents the development and evaluation of a **Legal Retrieval System with Multi Agent System** aimed at providing accurate and context-aware responses to Vietnamese legal questions. The system leverages cutting-edge techniques including **LLMs**, **embedding-based vector retrieval**, **fine-tuned reranking**, and an **Agentic RAG pipeline**. The project represents a shift from traditional RAG architectures to more dynamic, modular, and agent-driven retrieval-generation frameworks, optimized for legal domain complexity.
-
-
-![image](https://github.com/user-attachments/assets/05e843fe-0623-4085-b641-e4635fcea3c0)
-
+This report outlines the design, development, and evaluation of a **Legal Retrieval System** incorporating a **Multi-Agent Architecture** for the Vietnamese legal domain. By integrating advanced techniques such as **LLMs**, **embedding-based retrieval**, **cross-encoder reranking**, and an **Agentic RAG pipeline**, we have transitioned from static RAG architectures to a dynamic, modular system optimized for legal complexity and nuanced reasoning.
 
 ---
 
 ## 2. Motivation & Problem Statement
 
-Vietnamese legal texts are often complex, hierarchical, and filled with context-specific terminology and exceptions. Accessing relevant legal knowledge is challenging for non-experts and time-consuming for professionals.
+Vietnamese legal documents are inherently complex, filled with exceptions, and written in hierarchical formats. For non-experts, navigating this content is overwhelming; for professionals, it is time-consuming and inefficient.
 
-The core issues addressed include:
+We aimed to solve:
 
-* Legal information is **scattered** and often **poorly indexed**.
-* Existing LLMs face **hallucination** risks without grounding in verified legal data.
-* Naive RAG pipelines **lack adaptability** in multi-turn, multi-agent reasoning tasks.
+- **Scattered and poorly indexed legal knowledge**
+- **LLM hallucination risks** without legal-grounded retrieval
+- **Rigid RAG pipelines** unable to handle multi-turn or agent-based workflows
 
 ---
 
-## 3. System Architecture Overview
+## 3. System Architecture
 
+### 3.1 Key Components
 
-### 3.1 Core Components
+- **Data Source**: Official Vietnamese legal repositories
+- **Vector Store**: Qdrant for dense semantic retrieval
+- **LLM Backbone**: Google BERT fine-tuned on legal corpus
+- **Embedding Model**: [DEk21_hcmute_embedding](https://huggingface.co/huyydangg/DEk21_hcmute_embedding)
+- **Reranker**: [Cross-Encoder with RRF](https://huggingface.co/hghaan/rerank_model)
+- **Extractor**: [BERT Answer Span Extractor](https://huggingface.co/huyydangg/bert_extract_full_fine-tuned)
+- **Agentic RAG Modules**:
+  - `Query Router`
+  - `Query Rewriter`
+  - `Entity Extractor`
+  - `Search + Rerank`
+  - `Search Tool`
+  - `LLM Inference` (powered by Gemini API)
 
-* **Document Source**: Official Vietnamese legal websites.
-* **Vector DB**: Qdrant, used to store and retrieve dense document embeddings.
-* **LLM Backbone**: Google BERT fine-tuned for Vietnamese law.
-* **Embedding Model**: Custom Sentence Transformers ([huyydangg/DEk21_hcmute_embedding](https://huggingface.co/huyydangg/DEk21_hcmute_embedding)).
-* **Reranker**: Cross-Encoder with Reciprocal Rank Fusion (RRF) strategy ([hghaan/rerank_model](https://huggingface.co/hghaan/rerank_model)).
-* **Extractor Model**: BERT to extract legal answer spans ([huyydangg/bert_extract_full_fine-tuned](https://huggingface.co/huyydangg/bert_extract_full_fine-tuned)).
-* **RAG Architecture**: Agentic RAG integrating:
+![Workflow](https://github.com/user-attachments/assets/69daefa3-937a-4f94-9b6f-9b888051c252)
 
-  * `Query Router`
-  * `Query Rewriter`
-  * `Entity Extractor`
-  * `Search + Rerank`
-  * `Search Tool`
-  * `Gemini-powered LLM inference module`.
-
-![AGENTIC_RAG1-Detail_Workflow](https://github.com/user-attachments/assets/69daefa3-937a-4f94-9b6f-9b888051c252)
-
+---
 
 ### 3.2 Technical Stack
 
+| Layer             | Technology / Tool                             | Description                                                                 |
+|------------------|-----------------------------------------------|-----------------------------------------------------------------------------|
+| **Modeling**      | 🤗 HuggingFace Transformers                   | Core transformer base for BERT and Sentence-BERT                           |
+| **Embedding**     | 🧠 SBERT + Matryoshka Loss                    | Multi-scale semantic vector generation                                     |
+| **Reranking**     | 🎯 Cross-Encoder BERT + RRF                   | Improved relevance scoring post-retrieval                                  |
+| **LLM Reasoning** | 🔮 Gemini API                                 | Generates contextual answers from retrieved information                    |
+| **Agent Modules** | 🤖 Router, Rewriter, Extractor                | Modular tools for routing, clarification, and metadata extraction          |
+| **Search Layer**  | 🔍 Qdrant + Web Tools                         | Embedding retrieval with optional web search integration                   |
+| **Information Extractor** | 🧾 Fine-tuned BERT                    | Extracts relevant answer spans from legal content                          |
+| **Infrastructure**| ⚙️ FastAPI, Docker, LangChain                 | Microservice backend and LLM orchestration                                 |
+| **Deployment**    | ☁️ Dockerized Microservices                  | Scalable, containerized services                                           |
+| **Storage**       | 🧮 Qdrant Vector Store                         | Efficient and scalable vector + metadata storage                           |
 
-| Layer                | Technology / Tool                           | Description                                                                                                  |
-| -------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| **Open Model**       | 🤗 HuggingFace Transformers                 | Foundation for models like BERT (extractor), Sentence-Transformers (embedding), and Cross-Encoder (reranker) |
-| **Embedding** | 🧠 Sentence-BERT + Matryoshka Loss          | Generates semantic vector representations for queries and legal passages                                     |
-| **Reranker**         | 🎯 Cross-Encoder BERT + RRF                 | Re-evaluates the relevance between the query and retrieved passages                                          |
-| **LLM Reasoning**    | 🔮 Gemini API (or local LLM)                | Aggregates context and generates the final legal answer with citations                                       |
-| **Agent Modules**    | 🤖 Query Router, Rewriter, Entity Extractor | Directs the question, rewrites queries, extracts entities (laws, dates, etc.)                                |
-| **Search**    | 🔍 Qdrant + Optional External Tools         | Retrieves vectors and optionally searches external sources (Google, vbpl.gov.vn)                             |
-| **Extractor**        | 🧾 Extract Information              |         Extract legal answer spans and helps reduce LLM context and API cost      |
-| **Infrastructure**   | ⚙️ FastAPI + Docker + LangChain             | Lightweight backend API, fast deployment, and orchestration of the LLM/RAG pipeline                          |
-| **Deployment**       | ☁️ Containerized microservices              | Easily scalable and deployable as independent services or clusters                                           |
-| **Storage**          | 🧮 Qdrant vector database                   | Stores vectors and metadata, optimized for cosine similarity search                                          |                                    |
 ---
 
 ## 4. Methodology & Model Optimization
 
 ### 4.1 Embedding Optimization
 
-* Trained using **MultipleNegativesRankingLoss**
-* Applied **Matryoshka Representation Learning** for multi-resolution search.
-* Evaluated via **Recall\@K**, **MAP**, **MRR**, and **NDCG** metrics.
+- Trained with **MultipleNegativesRankingLoss**
+- Enhanced via **Matryoshka Representation Learning**
+- Evaluated using: **Recall@K**, **MAP**, **MRR**, **NDCG**
 
-### 4.2 Reranking
+### 4.2 Reranker
 
-* Fine-tuned Cross-Encoder with labeled question-document pairs.
-* Integrated **RRF** to balance multiple retrieval scores.
+- Fine-tuned **Cross-Encoder** with legal question-doc pairs
+- Incorporated **Reciprocal Rank Fusion (RRF)** for ensemble scoring
 
-### 4.3. Extractor
+### 4.3 Extractor Model
 
-* Fine-tuned BERT to extract legal answer spans
-* Helps reduce LLM context and API cost
+- BERT-based answer span extraction
+- Reduces context length and API costs for downstream LLMs
 
 ### 4.4 Agentic RAG Pipeline
 
-* Dynamically routes queries to appropriate modules.
-* Enables **multi-hop reasoning**, **context rewriting**, and **document grounding**.
-* Achieves significant improvements over static RAG by incorporating feedback and tool usage capabilities.
+- **Dynamic task delegation** via Query Router
+- **Multi-hop reasoning** and **context rewriting**
+- Modular components for fine-grained control over query execution
 
 ---
 
-## 5. Experimentation & Results
+## 5. Evaluation & Results
 
-| Module         | Technique                     | Evaluation Score    |
-| -------------- | ----------------------------- | ------------------- |
-| BERT Extractor | Full & LoRA Fine-Tuning       | F1: 0.93, EM: 0.91  |
-| Embedding      | SBERT + Matryoshka            | NDCG\@10: 0.92      |
-| Reranker       | Cross-Encoder + RRF           | MRR\@10: 0.87       |
-| Full System    | Agentic RAG (w/ Gemini Agent) | Query Accuracy: 90% |
+| Module         | Approach                      | Metrics                         |
+|----------------|-------------------------------|----------------------------------|
+| BERT Extractor | Full + LoRA Fine-Tuning       | **F1: 0.93**, **EM: 0.91**       |
+| Embedding      | SBERT + Matryoshka            | **NDCG@10: 0.92**                |
+| Reranker       | Cross-Encoder + RRF           | **MRR@10: 0.87**                 |
+| Full System    | Agentic RAG + Gemini Agent    | **Accuracy: 90%**                |
 
-> The system was evaluated on both internal UTE\_LAW and Zalo-based legal QA datasets (2021). Benchmarks confirm the superiority of Agentic RAG over Naive/Traditional RAG in both reasoning depth and retrieval accuracy.
+> Benchmarked on internal **UTE_LAW** and **Zalo QA** datasets. The Agentic RAG pipeline significantly outperformed traditional RAG in both retrieval and reasoning effectiveness.
 
 ---
 
 ## 6. Deployment
 
-* **API Layer**: FastAPI for lightweight REST services.
-* **Containerization**: Docker enables consistent environment across stages.
-* **Scalability**: Modular services allow easy cloud/on-premise deployment.
-* **User Interface**: Clean frontend for legal professionals and public access.
+- **API**: Built with **FastAPI** for lightweight REST interface
+- **Containerization**: Docker ensures reproducible environments
+- **Scaling**: Microservice architecture enables modular scalability
+- **Frontend**: Simple and intuitive UI tailored for legal professionals and public usage
 
 ---
 
-## 7. Contributions & Innovation
+## 7. Key Contributions & Innovation
 
-* First public Vietnamese **Agentic RAG** system tailored to law.
-* Custom fine-tuned **embedding** and **reranking** models for legal domain.
-* Modular design allowing **low-cost**, **scalable**, and **transparent** deployment.
+- **First Agentic RAG** system specialized for Vietnamese legal NLP
+- **Custom-trained models** for embedding, reranking, and span extraction
+- **Fully modular, scalable**, and **cost-efficient** architecture
+- Designed for **transparency**, **traceability**, and **legal compliance**
 
 ---
 
 ## 8. Limitations
 
-* Dataset limitations due to legal data sparsity in Vietnamese.
-* RAG agents still require performance tuning for ambiguous multi-turn dialogue.
-* Current Gemini integration operates via API; full offline LLM support pending.
+- Dataset constraints due to limited availability of Vietnamese annotated legal corpora
+- Ambiguity handling in multi-turn dialogue still needs refinement
+- **Gemini LLM integration** is API-dependent; future goal is full local LLM support
 
 ---
 
-## 9. Future Work
+## 9. Future Directions
 
-* Expand to **multilingual** and **multi-jurisdictional** legal corpora.
-* Integrate **Legal Ontologies** for better reasoning support.
-* Enable **self-learning retrievers** through user feedback.
-* Add **zero-shot summarization** & **citation tracing** for trustworthiness.
+- Expand coverage to **multi-jurisdictional** and **multilingual** legal sources
+- Integrate structured **Legal Ontologies**
+- Introduce **adaptive retrievers** via user feedback loops
+- Add **zero-shot summarization** and **citation tracing** for interpretability
 
 ---
 
 ## 10. Conclusion
 
-This work demonstrates the feasibility and effectiveness of **Agentic RAG** systems applied to Vietnamese law. By combining transformer-based NLP models, optimized embedding/reranking techniques, and multi-agent architectures, we deliver a **robust, scalable, and user-aligned** legal advisory chatbot system. This research not only advances AI in Vietnamese legal NLP but also lays the groundwork for broader intelligent public service systems.
+This project demonstrates the successful application of **Agentic Retrieval-Augmented Generation (RAG)** to a high-stakes, domain-specific task: legal question answering. By combining advanced NLP techniques, purpose-built models, and modular agent architecture, we deliver a reliable and intelligent system for Vietnamese legal advisory. This work paves the way for broader applications in **AI-driven public services** and **legal tech innovation**.
 
 ---
-
-
