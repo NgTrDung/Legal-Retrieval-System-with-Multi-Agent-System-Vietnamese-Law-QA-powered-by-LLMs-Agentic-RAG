@@ -1,3 +1,7 @@
+![Workflow](https://github.com/user-attachments/assets/69daefa3-937a-4f94-9b6f-9b888051c252)
+
+---
+
 # 📄 **Technical Report**
 
 ## Legal Retrieval System with Multi-Agent Architecture: Vietnamese Law QA powered by LLMs & Agentic RAG
