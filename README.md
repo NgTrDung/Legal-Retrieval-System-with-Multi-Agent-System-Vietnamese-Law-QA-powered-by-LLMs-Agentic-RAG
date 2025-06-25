@@ -1,5 +1,7 @@
 ![Workflow](https://github.com/user-attachments/assets/69daefa3-937a-4f94-9b6f-9b888051c252)
 
+Here is the DEMO Video: [Legal Retrieval System with Multi Agent System: Vietnamese Law QA powered by LLMs & Agentic RAG](https://youtu.be/v9iN9ebrfx8?si=02Uf_T9X4rDCvjoX)
+
 ---
 
 # 📄 **Technical Report**
